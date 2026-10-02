@@ -1,6 +1,8 @@
 import MusicPlayer from './components/common/MusicPlayer'
 import Hero from './sections/Hero'
 import BirthdayReveal from './sections/BirthdayReveal'
+import Cake from './sections/Cake'
+import Fireworks from './sections/Fireworks'
 import OurStory from './sections/OurStory'
 import Memories from './sections/Memories'
 import Reasons from './sections/Reasons'
@@ -19,6 +21,8 @@ function App() {
       <main>
         <Hero />
         <BirthdayReveal />
+        <Cake />
+        <Fireworks />
         <OurStory />
         <Memories />
         <Reasons />

@@ -40,91 +40,104 @@ const COLOR_CLASS = {
  * One shared heart system, with a light personality per section.
  *   count   — hearts rendered on >= sm screens
  *   mobile  — how many of those stay visible on small screens
- *   min/max — tiny/small heart size in px (an occasional "big" heart adds ~8px)
- *   opacity — normal opacity band (occasional closer hearts reach ~0.35)
+ *   opacity — low base opacity band (large accent hearts reach ~0.35)
  *   colors  — subset of the palette, in priority order
+ *
+ * Size is no longer one flat range: every section draws from three tiers
+ * (small 7–11px / medium 12–18px / large 19–26px) so each field reads as a
+ * natural mix — many small hearts, some medium, and a few larger accents.
  */
 const VARIANTS = {
   hero: {
     count: 9,
-    mobile: 5,
-    min: 7,
-    max: 13,
+    mobile: 6,
     opacity: [0.08, 0.16],
     colors: ['blush', 'lavender', 'champagne'],
   },
   birthday: {
-    count: 10,
-    mobile: 5,
-    min: 8,
-    max: 14,
+    count: 11,
+    mobile: 7,
     opacity: [0.1, 0.2],
     colors: ['rose', 'champagne', 'blush'],
   },
   story: {
-    count: 7,
-    mobile: 5,
-    min: 6,
-    max: 11,
+    count: 13,
+    mobile: 8,
     opacity: [0.07, 0.15],
     colors: ['blush', 'rose', 'lavender'],
   },
   memories: {
-    count: 8,
-    mobile: 4,
-    min: 7,
-    max: 12,
+    count: 14,
+    mobile: 9,
     opacity: [0.07, 0.14],
     colors: ['rose', 'lavender', 'blush'],
   },
   reasons: {
-    count: 9,
-    mobile: 5,
-    min: 8,
-    max: 13,
+    count: 14,
+    mobile: 9,
     opacity: [0.1, 0.2],
     colors: ['rose', 'blush', 'rose-deep'],
   },
   openwhen: {
-    count: 8,
-    mobile: 4,
-    min: 8,
-    max: 14,
+    count: 14,
+    mobile: 9,
     opacity: [0.09, 0.18],
     colors: ['champagne', 'blush', 'rose'],
   },
   quiz: {
-    count: 9,
-    mobile: 5,
-    min: 8,
-    max: 14,
+    count: 12,
+    mobile: 7,
     opacity: [0.1, 0.2],
     colors: ['rose', 'champagne', 'lavender', 'blush'],
   },
   secret: {
-    count: 5,
-    mobile: 3,
-    min: 6,
-    max: 11,
+    count: 12,
+    mobile: 7,
     opacity: [0.07, 0.14],
     colors: ['lavender', 'champagne'],
   },
   letter: {
-    count: 6,
-    mobile: 4,
-    min: 7,
-    max: 12,
+    count: 13,
+    mobile: 8,
     opacity: [0.06, 0.12],
     colors: ['blush', 'rose', 'lavender'],
   },
-  finale: {
-    count: 12,
+  cake: {
+    count: 13,
+    mobile: 8,
+    opacity: [0.09, 0.18],
+    colors: ['rose', 'blush', 'champagne', 'lavender'],
+  },
+  fireworks: {
+    count: 11,
     mobile: 6,
-    min: 9,
-    max: 18,
+    opacity: [0.07, 0.15],
+    colors: ['champagne', 'lavender', 'rose', 'blush'],
+  },
+  finale: {
+    count: 18,
+    mobile: 10,
     opacity: [0.12, 0.24],
     colors: ['rose', 'rose-deep', 'blush', 'champagne', 'lavender'],
   },
+}
+
+/* Heart size tiers (px) — a natural size distribution, not a single range. */
+const SIZE = {
+  small: [7, 11],
+  medium: [12, 18],
+  large: [19, 26],
+}
+
+/*
+ * Deterministic, balanced tier assignment that scales with the count: roughly
+ * one large accent every 7 hearts and one medium every 3, everything else
+ * small. Large is checked first so a heart is never both.
+ */
+function tierFor(index) {
+  if (index % 7 === 2) return 'large'
+  if (index % 3 === 0) return 'medium'
+  return 'small'
 }
 
 /* --- Deterministic pseudo-randomness (no Math.random, no re-seeding) ------- */
@@ -149,23 +162,30 @@ function buildHearts(key, cfg) {
   const hearts = []
 
   for (let i = 0; i < cfg.count; i += 1) {
-    const r1 = pseudo(base + i * 12.9898)
-    const r2 = pseudo(base + i * 78.233 + 4.1)
-    const r3 = pseudo(base + i * 37.719 + 9.7)
-    const r4 = pseudo(base + i * 93.989 + 17.3)
-    const r5 = pseudo(base + i * 5.31 + 31.7)
+    // Motion draws — mapping left unchanged so the animation feels identical.
+    const r1 = pseudo(base + i * 12.9898) // rise
+    const r2 = pseudo(base + i * 78.233 + 4.1) // drift + opacity
+    const r3 = pseudo(base + i * 37.719 + 9.7) // rotate + duration
+    const r4 = pseudo(base + i * 93.989 + 17.3) // delay
+    const r5 = pseudo(base + i * 5.31 + 31.7) // color
+    // Independent draws for spread + size (keeps colour/motion decorrelated).
+    const r6 = pseudo(base + i * 24.199 + 51.3) // left
+    const r7 = pseudo(base + i * 61.417 + 12.9) // top
+    const r8 = pseudo(base + i * 47.531 + 6.7) // size within tier
 
-    // Every sixth heart is the occasional closer, brighter one.
-    const big = i % 6 === 3
-    const size = big
-      ? cfg.min + r1 * (cfg.max - cfg.min) + 8
-      : cfg.min + r1 * (cfg.max - cfg.min)
-    const opacity = big
-      ? 0.22 + r2 * 0.13 // 0.22 – 0.35
-      : cfg.opacity[0] + r2 * (cfg.opacity[1] - cfg.opacity[0])
+    const tier = tierFor(i)
+    const [sizeMin, sizeMax] = SIZE[tier]
+    const size = sizeMin + r8 * (sizeMax - sizeMin)
 
-    const duration = 10 + r3 * 8 // 10 – 18s
-    const delay = -r4 * duration // negative => already mid-flight, desynced
+    // Opacity behaviour unchanged: low band for most, brighter for the
+    // occasional closer (large) accent heart.
+    const opacity =
+      tier === 'large'
+        ? 0.22 + r2 * 0.13 // 0.22 – 0.35
+        : cfg.opacity[0] + r2 * (cfg.opacity[1] - cfg.opacity[0])
+
+    const duration = 10 + r3 * 8 // 10 – 18s (unchanged)
+    const delay = -r4 * duration // negative => already mid-flight (unchanged)
 
     hearts.push({
       id: i,
@@ -173,11 +193,11 @@ function buildHearts(key, cfg) {
       opacity,
       duration,
       delay,
-      left: 4 + r5 * 90, // 4% – 94%
-      top: 6 + r4 * 84, // 6% – 90%
-      drift: (r2 - 0.5) * 16, // ±8px
-      rise: -(60 + r1 * 70), // -60px – -130px
-      rotate: (r3 - 0.5) * 18, // ±9deg
+      left: 3 + r6 * 94, // 3% – 97%
+      top: 4 + r7 * 88, // 4% – 92%
+      drift: (r2 - 0.5) * 16, // ±8px (unchanged)
+      rise: -(60 + r1 * 70), // -60px – -130px (unchanged)
+      rotate: (r3 - 0.5) * 18, // ±9deg (unchanged)
       color: cfg.colors[Math.floor(r5 * cfg.colors.length) % cfg.colors.length],
       hideOnMobile: i >= cfg.mobile,
     })

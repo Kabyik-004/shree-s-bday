@@ -1,0 +1,308 @@
+@import 'tailwindcss';
+
+/* ==========================================================================
+   SHREE'S LITTLE WORLD — GLOBAL DESIGN SYSTEM
+   --------------------------------------------------------------------------
+   Phase 2: visual identity only.
+   This file defines theme tokens, global styles and the ambient background.
+   No page sections live here — future sections will consume these tokens.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. THEME TOKENS (Tailwind v4 — defined in CSS, no tailwind.config.js)
+   -------------------------------------------------------------------------- */
+@theme {
+  /* --- Typography ------------------------------------------------------- */
+  /* Elegant serif for emotional headings */
+  --font-display: 'Cormorant Garamond', ui-serif, Georgia, 'Times New Roman', serif;
+  /* Clean sans for body copy and UI */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* --- Core palette (muted, romantic, elegant) -------------------------- */
+  /* Deep romantic base / depth */
+  --color-night: #140b1e;
+  --color-dusk: #1d1129;
+  --color-plum: #2a1838;
+  --color-wine: #3a1f3d;
+
+  /* Soft blush + rose pinks */
+  --color-blush: #f6dfe4;
+  --color-rose: #d98ba3;
+  --color-rose-deep: #c2708c;
+
+  /* Warm ivory */
+  --color-ivory: #f8f2ea;
+
+  /* Soft lavender */
+  --color-lavender: #c6b6e6;
+
+  /* Champagne / gold accents */
+  --color-champagne: #e3cba0;
+  --color-gold: #cfa96f;
+
+  /* Muted supporting text */
+  --color-muted: #b8adc6;
+
+  /* --- Radii ------------------------------------------------------------ */
+  --radius-card: 1.75rem;
+
+  /* --- Motion easing ---------------------------------------------------- */
+  --ease-gentle: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* --- Ambient animations (used by the hero's decorative layer) --------- */
+  --animate-float: shree-float 7s ease-in-out infinite;
+  --animate-float-slow: shree-float 11s ease-in-out infinite;
+  --animate-twinkle: shree-twinkle 4.5s ease-in-out infinite;
+
+  /* --- Shadows ----------------------------------------------------------- */
+  --shadow-glass:
+    0 24px 50px -24px rgba(10, 6, 16, 0.75), 0 8px 22px -14px rgba(0, 0, 0, 0.5);
+  --shadow-glass-hover:
+    0 32px 60px -26px rgba(10, 6, 16, 0.85), 0 10px 26px -14px rgba(0, 0, 0, 0.55);
+  --shadow-glow-rose: 0 14px 34px -14px rgba(217, 139, 163, 0.6);
+}
+
+/* --------------------------------------------------------------------------
+   2. BASE / GLOBAL STYLES
+   -------------------------------------------------------------------------- */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.65;
+    letter-spacing: 0.01em;
+    color: var(--color-ivory);
+
+    /* --- Ambient global background --------------------------------------
+       A deep romantic base with very subtle gradient transitions and soft
+       radial glows for atmospheric depth. First layer paints on top.
+       Fixed so the glows stay atmospheric while long pages scroll.        */
+    background-color: var(--color-night);
+    background-image:
+      radial-gradient(58rem 58rem at 12% 6%, rgba(217, 139, 163, 0.2), transparent 60%),
+      radial-gradient(46rem 46rem at 88% 18%, rgba(198, 182, 230, 0.16), transparent 62%),
+      radial-gradient(54rem 54rem at 84% 92%, rgba(194, 112, 140, 0.14), transparent 64%),
+      radial-gradient(48rem 48rem at 40% 108%, rgba(227, 203, 160, 0.12), transparent 60%),
+      linear-gradient(160deg, #1b1028 0%, #140b1e 48%, #0e0716 100%);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  #root {
+    min-height: 100dvh;
+  }
+
+  /* Headings use the elegant display serif by default */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: 0.005em;
+    color: var(--color-ivory);
+    margin: 0;
+  }
+
+  /* Text selection */
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-rose) 65%, transparent);
+    color: var(--color-night);
+  }
+
+  /* Accessible, consistent focus styling */
+  :focus-visible {
+    outline: 2px solid var(--color-champagne);
+    outline-offset: 3px;
+    border-radius: 0.5rem;
+  }
+
+  /* Scrollbar styling (Firefox + WebKit) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-plum) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-night);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--color-plum), var(--color-wine));
+    border-radius: 999px;
+    border: 2px solid var(--color-night);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--color-wine), var(--color-rose-deep));
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. CUSTOM UTILITIES
+   -------------------------------------------------------------------------- */
+
+/* Gradient text for emotional headings */
+@utility text-gradient {
+  background-image: linear-gradient(
+    120deg,
+    var(--color-blush) 0%,
+    var(--color-rose) 45%,
+    var(--color-champagne) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Warm ivory <-> muted supporting text pair */
+@utility text-body {
+  color: var(--color-muted);
+}
+
+/* --------------------------------------------------------------------------
+   3b. AMBIENT KEYFRAMES
+   Used by the hero's decorative layer. Kept in CSS (not JS) for performance.
+   -------------------------------------------------------------------------- */
+@keyframes shree-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes shree-twinkle {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3c. FLOATING HEART MOTIF
+   A small, deterministic set of solid SVG hearts drifts slowly upward across
+   every section. One shared keyframe drives them all; per-heart size, colour,
+   opacity, drift and timing arrive as CSS custom properties from
+   src/components/common/FloatingHearts.jsx. Pure CSS — no JS loop, no spawning.
+   -------------------------------------------------------------------------- */
+.shree-heart {
+  animation-name: shree-heart-float;
+  animation-duration: var(--heart-duration, 12s);
+  animation-delay: var(--heart-delay, 0s);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes shree-heart-float {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) rotate(0deg);
+  }
+  18% {
+    opacity: var(--heart-opacity, 0.15);
+  }
+  50% {
+    opacity: calc(var(--heart-opacity, 0.15) * 0.7);
+    transform: translate3d(
+        var(--heart-drift, 0px),
+        calc(var(--heart-rise, -90px) * 0.5),
+        0
+      )
+      rotate(calc(var(--heart-rotate, 0deg) * 0.5));
+  }
+  82% {
+    opacity: var(--heart-opacity, 0.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, var(--heart-rise, -90px), 0)
+      rotate(var(--heart-rotate, 0deg));
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3d. MOBILE AMBIENT LOAD
+   The decorative float/twinkle/heart loops are the only continuously-running
+   animations on the site. On small screens we lengthen or shrink them so the
+   effect is calmer and the compositor stays free for scrolling. Nothing here
+   changes the layout — only how gently the ambient layer moves.
+   -------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .animate-float {
+    animation-duration: 11s;
+  }
+
+  .animate-float-slow {
+    animation-duration: 16s;
+  }
+
+  .animate-twinkle {
+    animation-duration: 7.5s;
+  }
+
+  /* Fewer, smaller, softer hearts with a shorter travel distance. */
+  .shree-hearts {
+    transform: scale(0.82);
+    transform-origin: 50% 50%;
+    opacity: 0.8;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. REDUCED MOTION
+   Honour the user's "prefers-reduced-motion" setting for CSS animations.
+   Framer Motion honours it separately via MotionConfig reducedMotion="user".
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Hearts stop moving and simply rest at their very low base opacity. */
+  .shree-heart {
+    animation: none !important;
+    transform: none !important;
+  }
+}

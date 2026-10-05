@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { MotionConfig, motion, useInView, useReducedMotion } from 'framer-motion'
+import { ChevronDown } from 'lucide-react'
 import { easeGentle } from '../../components/animations/variants'
 import FloatingHearts from '../../components/common/FloatingHearts'
 import FireworksBackground from './FireworksBackground'
@@ -194,6 +195,36 @@ function StaticCelebration() {
   )
 }
 
+/*
+ * ScrollCue — a gentle "there's more / scroll down" hint that appears once the
+ * celebration has finished, matching the cue style used earlier in the site.
+ * Shows immediately under reduced motion. Purely a hint (pointer-events-none).
+ */
+function ScrollCue({ reduceMotion }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: reduceMotion ? 0.4 : 15, duration: 1, ease: easeGentle }}
+      className="pointer-events-none absolute bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1 sm:bottom-8"
+    >
+      <span className="text-[0.65rem] uppercase tracking-[0.3em] text-muted/70">
+        there&apos;s more
+      </span>
+      <span className="text-[0.55rem] uppercase tracking-[0.3em] text-muted/50">
+        scroll down
+      </span>
+      <motion.span
+        animate={{ y: [0, 6, 0] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+        className="mt-0.5 text-champagne/70"
+      >
+        <ChevronDown size={18} strokeWidth={1.5} aria-hidden="true" />
+      </motion.span>
+    </motion.div>
+  )
+}
+
 export default function Fireworks() {
   const reduceMotion = useReducedMotion()
   const ref = useRef(null)
@@ -207,7 +238,7 @@ export default function Fireworks() {
         ref={ref}
         id="fireworks"
         aria-label="Birthday Celebration"
-        className="relative isolate flex min-h-svh flex-col items-center justify-center overflow-hidden px-6 py-20 text-center sm:py-28"
+        className="relative isolate flex min-h-svh flex-col items-center justify-center overflow-hidden px-6 pt-20 pb-28 text-center sm:pt-28 sm:pb-32"
       >
         <FireworksBackground />
         <FloatingHearts variant="fireworks" />
@@ -242,6 +273,9 @@ export default function Fireworks() {
             </div>
           )}
         </div>
+
+        {/* Scroll hint — appears after the celebration ends */}
+        {started && <ScrollCue reduceMotion={reduceMotion} />}
       </section>
     </MotionConfig>
   )

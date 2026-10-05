@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { MotionConfig, motion, useInView, useReducedMotion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import { easeGentle } from '../../components/animations/variants'
+import { Button } from '../../components/ui'
 import FloatingHearts from '../../components/common/FloatingHearts'
 import FireworksBackground from './FireworksBackground'
 import FireworkBurst from './FireworkBurst'
@@ -42,7 +43,7 @@ const GRADIENT_TEXT =
   'bg-gradient-to-b from-ivory via-blush to-rose bg-clip-text text-transparent'
 
 // Timed text groups (they cross-fade in the same centred area).
-function TimedCelebration() {
+function TimedCelebration({ onContinue }) {
   return (
     <>
       {/* Opening */}
@@ -150,13 +151,23 @@ function TimedCelebration() {
         >
           Level 23 unlocked.
         </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 14.1, duration: 0.9, ease: easeGentle }}
+          className="mt-7"
+        >
+          <Button variant="secondary" onClick={onContinue}>
+            Now, let me show you our story →
+          </Button>
+        </motion.div>
       </motion.div>
     </>
   )
 }
 
 // Reduced-motion view: the meaningful content, shown at once with a soft fade.
-function StaticCelebration() {
+function StaticCelebration({ onContinue }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -191,6 +202,11 @@ function StaticCelebration() {
       <p className="mt-2 text-[0.95rem] text-champagne sm:text-lg">
         Level 23 unlocked.
       </p>
+      <div className="mt-7">
+        <Button variant="secondary" onClick={onContinue}>
+          Now, let me show you our story →
+        </Button>
+      </div>
     </motion.div>
   )
 }
@@ -232,6 +248,16 @@ export default function Fireworks() {
   // Derived during render (no effect): the show begins once the section is seen.
   const started = inView
 
+  const handleShowStory = () => {
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+    document.getElementById('story')?.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'start',
+    })
+  }
+
   return (
     <MotionConfig reducedMotion="user">
       <section
@@ -266,10 +292,10 @@ export default function Fireworks() {
         {/* Meaningful content */}
         <div className="relative z-10 w-full max-w-3xl">
           {reduceMotion ? (
-            <StaticCelebration />
+            <StaticCelebration onContinue={handleShowStory} />
           ) : (
-            <div className="relative mx-auto flex min-h-[19rem] w-full items-center justify-center">
-              {started && <TimedCelebration />}
+            <div className="relative mx-auto flex min-h-[24rem] w-full items-center justify-center">
+              {started && <TimedCelebration onContinue={handleShowStory} />}
             </div>
           )}
         </div>

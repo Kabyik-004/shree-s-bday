@@ -9,6 +9,7 @@ import {
 } from '../../components/animations/variants'
 import { memories, memoryCategories } from '../../data/memories'
 import FloatingHearts from '../../components/common/FloatingHearts'
+import JourneyCue from '../../components/common/JourneyCue'
 import MemoryBackground from './MemoryBackground'
 import MemoryCard from './MemoryCard'
 import MemoryLightbox from './MemoryLightbox'
@@ -147,6 +148,8 @@ export default function Memories() {
               And somehow, every little moment became part of our story.
             </motion.p>
           </motion.div>
+
+          <JourneyCue label="keep going" className="mt-10 sm:mt-12" />
         </div>
 
         {/* Full-screen viewer */}

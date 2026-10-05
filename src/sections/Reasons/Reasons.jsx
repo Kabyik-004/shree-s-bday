@@ -8,6 +8,7 @@ import {
 } from '../../components/animations/variants'
 import { reasons } from '../../data/messages'
 import FloatingHearts from '../../components/common/FloatingHearts'
+import JourneyCue from '../../components/common/JourneyCue'
 import ReasonsBackground from './ReasonsBackground'
 import ReasonCard from './ReasonCard'
 
@@ -36,7 +37,11 @@ export default function Reasons() {
         className="relative isolate overflow-hidden px-6 py-20 sm:py-28"
       >
         <ReasonsBackground />
-        <FloatingHearts variant="reasons" />
+        {/* Hearts live in a fixed-height, top-anchored layer too, so opening a
+            card never makes the heart field shift or redistribute. */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[100rem] overflow-hidden">
+          <FloatingHearts variant="reasons" />
+        </div>
 
         <div className="relative z-10 mx-auto w-full max-w-6xl">
           {/* Intro */}
@@ -101,6 +106,8 @@ export default function Reasons() {
               here all night.
             </motion.p>
           </motion.div>
+
+          <JourneyCue label="one more thing" className="mt-10 sm:mt-12" />
         </div>
       </section>
     </MotionConfig>

@@ -2,6 +2,7 @@ import { MotionConfig, motion } from 'framer-motion'
 import { fadeIn } from '../../components/animations/variants'
 import { letter } from '../../data/messages'
 import FloatingHearts from '../../components/common/FloatingHearts'
+import JourneyCue from '../../components/common/JourneyCue'
 import LetterBackground from './LetterBackground'
 import LetterPaper from './LetterPaper'
 
@@ -42,6 +43,8 @@ export default function Letter() {
           >
             <LetterPaper letter={letter} />
           </motion.div>
+
+          <JourneyCue label="there's more" className="mt-12 sm:mt-16" />
         </motion.div>
       </section>
     </MotionConfig>

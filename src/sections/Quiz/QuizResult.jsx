@@ -40,6 +40,13 @@ export default function QuizResult({ score, total, message, onRetry }) {
         {message}
       </p>
 
+      <p className="mt-1 font-display text-lg italic text-champagne/90 sm:text-xl">
+        Okay… you passed. Probably. 😌
+      </p>
+      <p className="max-w-md text-sm leading-relaxed text-body sm:text-base">
+        But there&apos;s still something you haven&apos;t found yet&hellip;
+      </p>
+
       <Button size="lg" onClick={onRetry} className="mt-2">
         Play Again
       </Button>

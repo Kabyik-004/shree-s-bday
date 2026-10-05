@@ -76,11 +76,10 @@ export default function ReasonCard({ reason, index, isOpen, onToggle }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ ...gentleTransition, delay: Math.min(index, 6) * 0.07 }}
-      className="h-full"
     >
       <div
         className={cn(
-          'group relative flex h-full flex-col overflow-hidden rounded-card border border-white/10',
+          'group relative flex flex-col overflow-hidden rounded-card border border-white/10',
           'bg-white/[0.045] shadow-glass backdrop-blur-md transition-colors duration-500 ease-gentle',
           tone.ring,
         )}

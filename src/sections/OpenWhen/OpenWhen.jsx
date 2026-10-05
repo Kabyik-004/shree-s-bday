@@ -8,6 +8,7 @@ import {
 } from '../../components/animations/variants'
 import { openWhenMessages } from '../../data/messages'
 import FloatingHearts from '../../components/common/FloatingHearts'
+import JourneyCue from '../../components/common/JourneyCue'
 import OpenWhenBackground from './OpenWhenBackground'
 import OpenWhenCard from './OpenWhenCard'
 import OpenWhenModal from './OpenWhenModal'
@@ -85,6 +86,12 @@ export default function OpenWhen() {
               />
             ))}
           </ul>
+
+          <JourneyCue
+            line="But before we go any further… let's see how well you remember us."
+            label="one more thing"
+            className="mt-16 sm:mt-20"
+          />
         </div>
 
         {/* Opened envelope */}

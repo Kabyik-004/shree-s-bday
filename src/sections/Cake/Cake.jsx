@@ -17,13 +17,14 @@ import CakeBackground from './CakeBackground'
  * Cake — the birthday wish ritual, bridging the birthday opening into the story.
  *
  * Flow (unchanged): Make a Wish → Blow the Candle → realistic extinguishing →
- * Wish made → Continue our story.
+ * "Wish made. ❤️" → auto-advance into the Fireworks celebration.
  *
  * The candle is only ever extinguished by "Blow the Candle". On that click the
  * extinguishing sequence plays (air-hit lean → deform → shrink → ember → smoke,
- * ~1.85s) and only then does the closing message appear. Everything is
- * transform/opacity based, deterministic and lightweight — no raster images, no
- * JS animation loops, no new dependencies.
+ * ~1.85s); once the flame is out the section shows the closing message briefly
+ * and then scrolls itself into the celebration (reduced-motion aware). There is
+ * no Continue button. Everything is transform/opacity based, deterministic and
+ * lightweight — no raster images, no JS animation loops, no new dependencies.
  */
 
 /* ---------------- Candle smoke wisps (thin, translucent, deterministic) --- */
@@ -380,17 +381,20 @@ export default function Cake() {
     schedule(() => setBlown(true), 1850) // then the birthday message appears
   }
 
-  const handleContinue = () => {
-    // Same reduced-motion-aware scroll pattern used by the Hero CTA.
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches
-
-    document.getElementById('fireworks')?.scrollIntoView({
-      behavior: prefersReducedMotion ? 'auto' : 'smooth',
-      block: 'start',
-    })
-  }
+  // Once the candle is out, take the visitor into the celebration automatically.
+  useEffect(() => {
+    if (!blown) return undefined
+    const id = setTimeout(() => {
+      const prefersReducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches
+      document.getElementById('fireworks')?.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        block: 'start',
+      })
+    }, 1600)
+    return () => clearTimeout(id)
+  }, [blown])
 
   return (
     <MotionConfig reducedMotion="user">
@@ -403,36 +407,35 @@ export default function Cake() {
         <FloatingHearts variant="cake" />
 
         <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center">
-          {/* Intro */}
-          {!blowStarted && (
-            <motion.header
-              variants={staggerContainer(0.2, 0.05)}
-              initial="hidden"
-              whileInView="visible"
-              viewport={viewportOnce}
-              className="mx-auto max-w-2xl text-center"
+          {/* Intro — kept mounted at all times so the cake never shifts when
+              the candle is blown. */}
+          <motion.header
+            variants={staggerContainer(0.2, 0.05)}
+            initial="hidden"
+            whileInView="visible"
+            viewport={viewportOnce}
+            className="mx-auto max-w-2xl text-center"
+          >
+            <motion.p
+              variants={fadeIn}
+              className="text-[0.7rem] font-medium uppercase tracking-[0.22em] text-champagne/80 sm:text-xs sm:tracking-[0.42em]"
             >
-              <motion.p
-                variants={fadeIn}
-                className="text-[0.7rem] font-medium uppercase tracking-[0.22em] text-champagne/80 sm:text-xs sm:tracking-[0.42em]"
-              >
-                Before our story begins&hellip;
-              </motion.p>
-              <motion.h2
-                variants={fadeUp}
-                className="mt-4 font-display text-[clamp(2rem,6vw,3.5rem)] font-medium leading-tight text-ivory"
-              >
-                Make a little birthday wish.
-              </motion.h2>
-              <motion.p
-                variants={fadeUp}
-                className="mx-auto mt-4 max-w-xl font-display text-lg italic leading-relaxed text-ivory/85 sm:text-xl"
-              >
-                Close your eyes, make your wish, and keep it just between you and
-                the stars. ❤️
-              </motion.p>
-            </motion.header>
-          )}
+              Before our story begins&hellip;
+            </motion.p>
+            <motion.h2
+              variants={fadeUp}
+              className="mt-4 font-display text-[clamp(2rem,6vw,3.5rem)] font-medium leading-tight text-ivory"
+            >
+              Make a little birthday wish.
+            </motion.h2>
+            <motion.p
+              variants={fadeUp}
+              className="mx-auto mt-4 max-w-xl font-display text-lg italic leading-relaxed text-ivory/85 sm:text-xl"
+            >
+              Close your eyes, make your wish, and keep it just between you and
+              the stars. ❤️
+            </motion.p>
+          </motion.header>
 
           {/* The cake */}
           <motion.div
@@ -450,9 +453,10 @@ export default function Cake() {
             />
           </motion.div>
 
-          {/* Sequenced controls */}
+          {/* Sequenced controls — reserved height keeps the section stable
+              across the wish → blow → message swaps. */}
           <div
-            className="mt-10 flex min-h-[8rem] w-full flex-col items-center justify-center sm:mt-12"
+            className="mt-10 flex min-h-[12rem] w-full flex-col items-center justify-center sm:mt-12"
             aria-live="polite"
           >
             <AnimatePresence mode="wait">
@@ -507,9 +511,6 @@ export default function Cake() {
                   <p className="max-w-md font-display text-lg italic leading-relaxed text-ivory/90 sm:text-xl">
                     I hope this year brings you everything your heart wishes for.
                   </p>
-                  <Button size="lg" onClick={handleContinue}>
-                    Continue our story →
-                  </Button>
                 </motion.div>
               )}
             </AnimatePresence>
